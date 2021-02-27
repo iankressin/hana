@@ -1,7 +1,16 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect } from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import { invoke } from "tauri/api/tauri";
 
 function App() {
+  useEffect(() => {
+    invoke({
+      cmd: "init",
+      argument: "Hello from React"
+    });
+  }, []);
+
   return (
     <div className="App">
       <header className="App-header">
