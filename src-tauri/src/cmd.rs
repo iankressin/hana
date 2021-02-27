@@ -6,5 +6,9 @@ pub enum Cmd {
   // your custom commands
   // multiple arguments are allowed
   // note that rename_all = "camelCase": you need to use "myCustomCommand" on JS
-  Init { argument: String },
+  Init {
+    folder: String,
+    callback: String,
+    error: String,
+  },
 }
