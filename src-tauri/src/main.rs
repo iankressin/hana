@@ -20,8 +20,17 @@ fn main() {
               callback,
               error,
             } => tauri::execute_promise(_webview, move || {
-                meta_handler::MetaHandler::new_dir(&folder).unwrap();
-                Ok(())
+                match meta_handler::MetaHandler::new_dir(&folder) {
+                    Ok(_) => {
+                        println!("Everything went down as expecter");
+                        Ok(())
+                    } 
+                    Err(err) => {
+                        println!("Err: {}", err);
+                        Err(err.into())
+                    } 
+
+                }
             }, callback, error),
           }
           Ok(())

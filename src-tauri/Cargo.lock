@@ -551,6 +551,7 @@ checksum = "8be18de09a56b60ed0edf84bc9df007e30040691af7acd1c41874faac5895bfb"
 name = "hana"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "drive-client",
  "drive-server",
  "hex 0.3.2",

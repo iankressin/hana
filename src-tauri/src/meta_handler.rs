@@ -1,4 +1,5 @@
 // TODO: Consider to move MetaHandler to its own crate
+// TODO: Make $HOME static
 use std::fs;
 use std::collections::HashMap;
 use std::io::prelude::*;
@@ -8,41 +9,74 @@ use regex::Regex;
 use drive_client::types::Metadata;
 use serde::{Deserialize, Serialize};
 use std::env;
+use anyhow::{ Result as AnyResult, Error };
 
-// #[derive(Serialize, Deserialize, Debug)]
-// struct FolderRecords {
-//     records: HashMap<String, String>
-// }
+// An error type we define
+// We could also use the `anyhow` lib here
+#[derive(Debug, Clone)]
+struct MetaHandlerError<'a> {
+  message: &'a str,
+}
+
+impl<'a> MetaHandlerError<'a> {
+  fn new(message: &'a str) -> Self {
+    Self { message }
+  }
+}
+
+impl<'a> std::fmt::Display for MetaHandlerError<'a> {
+  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    write!(f, "{}", self.message)
+  }
+}
+
 
 pub struct MetaHandler;
 
 impl MetaHandler {
-    pub fn new_dir(folder_path: &str) -> Result<(), std::io::Error> {
+    pub fn new_dir(folder_path: &str) -> Result<(), Error> {
         let (name, path) = MetaHandler::get_folder_and_path(folder_path);
-        MetaHandler::register_dir(name, path).unwrap();
-        MetaHandler::create_metadata(folder_path).unwrap();
-
-        Ok(())
+        match MetaHandler::register_dir(name, path) {
+            Ok(_) => match MetaHandler::create_metadata(path) {
+                Ok(_) => Ok(()),
+                Err(err) => Err(Error::new(err))
+            
+            },
+            Err(err) => Err(Error::new(err))
+        }
     }
 
     fn register_dir(name: &str, path: &str) -> Result<(), std::io::Error> {
-        let home = env::var("HOME").unwrap();
-        println!("{}", &format!("{}/.hana/records/folders.json", home));
-        let bytes = fs::read(&format!("{}/.hana/records/folders.json", home)).unwrap();
-        let json = String::from_utf8_lossy(&bytes);
-        let mut record: HashMap<String, String> = serde_json::from_str(&json).unwrap();
-
+        let mut record = MetaHandler::get_dirs_record()?;
         record.insert(name.to_owned(), path.to_owned());
+
+        MetaHandler::set_dirs_record(&record)?;
         Ok(())
     }
 
-    pub fn get_all_dirs() {}
 
-    pub fn get_folder_metadata() {}
+    pub fn get_dirs_record() -> Result<HashMap<String, String>, std::io::Error> {
+        let home = env::var("HOME").unwrap();
+        let bytes = fs::read(&format!("{}/.hana/records/folders.json", home)).unwrap();
+        let json = String::from_utf8_lossy(&bytes);
+        let records: HashMap<String, String> = serde_json::from_str(&json).unwrap();
+    
+        Ok(records)
+        
+    }
+
+    fn set_dirs_record(record: &HashMap<String, String>) -> Result<(), std::io::Error> {
+        let home = env::var("HOME").unwrap();
+        let json = serde_json::to_string(record).unwrap();
+        fs::write(format!("{}/.hana/records/folders.json", home), &json).unwrap();
+
+        Ok(())
+    }
 
     fn create_metadata(folder_path: &str) -> Result<(), std::io::Error> {
-        fs::create_dir(folder_path)?;
-        let mut file = fs::File::create(format!("{}.hana/metadata.json", folder_path))?;
+        println!("Folder where metadata is being created: {}/.hana", folder_path);
+        fs::create_dir(format!("{}/.hana/", folder_path))?;
+        let mut file = fs::File::create(format!("{}/.hana/metadata.json", folder_path))?;
         let json = serde_json::to_string(&MetaHandler::get_folder_metada(folder_path).unwrap())?;
 
         file.write_all(&json.as_bytes()).unwrap();
@@ -52,7 +86,7 @@ impl MetaHandler {
 
     pub fn get_folder_metada(folder_path: &str) -> std::io::Result<Vec<Metadata>> {
         let mut meta = Vec::new();
-        for entry in fs::read_dir(format!("{}./", folder_path))? {
+        for entry in fs::read_dir(folder_path)? {
             if let Ok(entry) = entry {
                 if let Ok(metadata) = entry.metadata() {
                     let (name, extension) = MetaHandler::get_file_name_and_extension(
@@ -116,7 +150,7 @@ impl MetaHandler {
     
         let splited_path = path.split("/");
         let mut s: Vec<&str> = splited_path.collect();
-        let folder_name = s.remove(s.len() - 2);
+        let folder_name = s.remove(s.len() - 1);
         
         ( folder_name, path )
     }

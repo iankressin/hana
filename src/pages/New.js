@@ -16,13 +16,18 @@ const New = () => {
 
   const handleInitFolder = async () => {
     setLoading(loadingState);
-    const folder = await getFolderPath();
-    const response = await promisified({
-      cmd: "init",
-      folder
-    });
+    try {
+      const folder = await getFolderPath();
+      const response = await promisified({
+        cmd: "init",
+        folder
+      });
+      console.log("Response from rust", response);
+    } catch (error) {
+      console.log("----->>> Something went wrong!!!!");
+      console.log(error);
+    }
 
-    console.log("Response from rust", response);
     setLoading(defaultState);
   };
 
