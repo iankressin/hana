@@ -375,37 +375,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fea41bba32d969b513997752735605054bc0dfa92b4c56bf1189f2e174be7a10"
 
 [[package]]
-name = "drive-client"
-version = "0.1.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f31cd032ae99ff3ab549531f3c0197b3b77bc8aa964c1fc91f77a80d2e393797"
-dependencies = [
- "bytes",
- "dns-message-parser",
- "hex 0.3.2",
- "net2",
- "pnet",
- "regex",
- "serde",
- "serde_json",
- "sha-1",
-]
-
-[[package]]
-name = "drive-server"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fe6ccea978e792dce84eba0a596c07d59b87e8168a59ce6b34a61f1984d6dcb3"
-dependencies = [
- "bytes",
- "dns-message-parser",
- "net2",
- "pnet",
- "serde",
- "serde_json",
-]
-
-[[package]]
 name = "dtoa"
 version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -552,8 +521,9 @@ name = "hana"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "drive-client",
- "drive-server",
+ "hana-client",
+ "hana-server",
+ "hana-types",
  "hex 0.3.2",
  "regex",
  "serde",
@@ -561,6 +531,48 @@ dependencies = [
  "sha-1",
  "tauri",
  "winres",
+]
+
+[[package]]
+name = "hana-client"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b26426706d5d286ebe4d64b6612e417ff4ea195a480e23214f0a0a3276369abb"
+dependencies = [
+ "bytes",
+ "dns-message-parser",
+ "hana-types",
+ "hex 0.3.2",
+ "net2",
+ "pnet",
+ "regex",
+ "serde",
+ "serde_json",
+ "sha-1",
+]
+
+[[package]]
+name = "hana-server"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8f90ae893776396f628db491c9841f88d7d2eafe212f0367c5b30cfdd04bf06"
+dependencies = [
+ "bytes",
+ "dns-message-parser",
+ "hana-types",
+ "net2",
+ "pnet",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "hana-types"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4aefd488974cb641d2782fd9645bc01e502b6bf252b81c636310fe66ac4efe46"
+dependencies = [
+ "serde",
 ]
 
 [[package]]

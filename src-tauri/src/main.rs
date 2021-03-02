@@ -4,6 +4,7 @@
 )]
 
 mod cmd;
+mod server;
 mod meta_handler;
 
 fn main() {
@@ -67,6 +68,20 @@ fn main() {
                     Ok(metadata) => Ok(metadata),
                     Err(err) => Err(err.into()),
                   }
+                Err(err) => Err(err.into()),
+              },
+              callback,
+              error,
+            ),
+
+            RunServer {
+              path,
+              callback,
+              error,
+            } => tauri::execute_promise(
+              _webview,
+              move || match server::Server::listen(path) {
+                Ok(()) => Ok(()),
                 Err(err) => Err(err.into()),
               },
               callback,

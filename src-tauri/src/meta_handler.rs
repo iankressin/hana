@@ -1,9 +1,8 @@
 // TODO: Consider to move MetaHandler to its own crate
 // TODO: Make $HOME static
-use anyhow::{Error, Result as AnyResult};
-use drive_client::types::Metadata;
+use anyhow::Error;
+use hana_types::Metadata;
 use regex::Regex;
-use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 use std::collections::HashMap;
 use std::env;
@@ -63,6 +62,16 @@ impl MetaHandler {
 
     Ok(metadata)
   }
+
+    pub fn push_metadata(path: &str, meta: Metadata) -> Result<(), std::io::Error> {
+        let mut metadata = MetaHandler::get_metadata(path).unwrap();
+        metadata.push(meta.clone());
+
+        let json = serde_json::to_string(&metadata).unwrap();
+        fs::write(&format!("{}/.hana/metadata.json", path), &json).unwrap();
+
+        Ok(())
+    }
 
   fn set_dirs_record(record: &HashMap<String, String>) -> Result<(), std::io::Error> {
     let home = env::var("HOME").unwrap();
@@ -139,7 +148,7 @@ impl MetaHandler {
   fn hash_files(path: &str, buf: &mut [u8]) {
     let mut file = fs::File::open(&path).unwrap();
     let mut hasher = Sha1::new();
-    let n = io::copy(&mut file, &mut hasher).unwrap();
+    io::copy(&mut file, &mut hasher).unwrap();
 
     buf.copy_from_slice(&hasher.finalize())
   }

@@ -27,5 +27,11 @@ pub enum Cmd {
       path: String,
       callback: String,
       error: String,
+  },
+
+  RunServer {
+      path: String,
+      callback: String,
+      error: String,
   }
 }
