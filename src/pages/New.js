@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { promisified } from "tauri/api/tauri";
-import { open, close } from "tauri/api/dialog";
-import { Button, Input } from "antd";
+import { useHistory } from "react-router-dom";
+
+import NewFolderButton from "../components/NewFolderButton";
+import CenterLayout from "../components/CenterLayout";
 
 const New = () => {
   const defaultState = {
@@ -13,37 +14,32 @@ const New = () => {
     btn: "Configuring folder ..."
   };
   const [loading, setLoading] = useState(defaultState);
+  const history = useHistory();
 
-  const handleInitFolder = async () => {
+  const handleInitFolder = () => {
     setLoading(loadingState);
-    try {
-      const folder = await getFolderPath();
-      const response = await promisified({
-        cmd: "init",
-        folder
-      });
-      console.log("Response from rust", response);
-    } catch (error) {
-      console.log("----->>> Something went wrong!!!!");
-      console.log(error);
-    }
+
+    localStorage.setItem("hasFolder", true);
+    history.push("/folders");
 
     setLoading(defaultState);
   };
 
-  const getFolderPath = async () => {
-    const path = await open({ directory: true });
-    return path;
-  };
-
   return (
-    <div>
-      <h1>Hana</h1>
-      <p>First, pick a valid folder path to initialize hazna</p>
-      <Button loading={loading.state} onClick={() => handleInitFolder()}>
-        {loading.btn}
-      </Button>
-    </div>
+    <CenterLayout>
+      <div className="text-center m-auto">
+        <h1 className="text-8xl">🐶</h1>
+        <h1 className="text-6xl"> Welcome to Hana!</h1>
+        <h3 className="text-2xl mb-8">
+          First, lets pick a location to initialize as a Hana folder
+        </h3>
+        <NewFolderButton
+          size="w-80"
+          onResponse={() => handleInitFolder()}
+          text={loading.btn}
+        />
+      </div>
+    </CenterLayout>
   );
 };
 

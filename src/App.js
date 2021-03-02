@@ -1,11 +1,11 @@
-import { useEffect } from "react";
-import New from "./pages/New";
+import React from "react";
+import Routes from "./config/Routes";
 import "antd/dist/antd.css";
 
 function App() {
   return (
     <div className="App">
-      <New />
+      <Routes />
     </div>
   );
 }

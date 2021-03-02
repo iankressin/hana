@@ -19,19 +19,42 @@ fn main() {
               folder,
               callback,
               error,
-            } => tauri::execute_promise(_webview, move || {
-                match meta_handler::MetaHandler::new_dir(&folder) {
-                    Ok(_) => {
-                        println!("Everything went down as expecter");
-                        Ok(())
-                    } 
-                    Err(err) => {
-                        println!("Err: {}", err);
-                        Err(err.into())
-                    } 
-
+            } => tauri::execute_promise(
+              _webview,
+              move || match meta_handler::MetaHandler::new_dir(&folder) {
+                Ok(new_path) => Ok(new_path),
+                Err(err) => {
+                  println!("Err: {}", err);
+                  Err(err.into())
                 }
-            }, callback, error),
+              },
+              callback,
+              error,
+            ),
+
+            GetFolders { callback, error } => tauri::execute_promise(
+              _webview,
+              move || match meta_handler::MetaHandler::get_dirs_record_as_vec() {
+                Ok(dirs) => Ok(dirs),
+                Err(err) => Err(err.into()),
+              },
+              callback,
+              error,
+            ),
+
+            GetMetadata {
+              path,
+              callback,
+              error,
+            } => tauri::execute_promise(
+              _webview,
+              move || match meta_handler::MetaHandler::get_metadata(&path) {
+                Ok(dirs) => Ok(dirs),
+                Err(err) => Err(err.into()),
+              },
+              callback,
+              error,
+            ),
           }
           Ok(())
         }
