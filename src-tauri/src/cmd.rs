@@ -22,4 +22,10 @@ pub enum Cmd {
     callback: String,
     error: String,
   },
+
+  Sync {
+      path: String,
+      callback: String,
+      error: String,
+  }
 }

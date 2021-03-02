@@ -52,7 +52,9 @@ const FoldersList = () => {
               <TextButton
                 type="text"
                 className="text-black-500"
-                onClick={() => history.push("folder", { path })}
+                onClick={() =>
+                  history.push("folder", { params: { folder, path } })
+                }
               >
                 <FolderTwoTone className="text-xl mr-4" /> {folder}
               </TextButton>

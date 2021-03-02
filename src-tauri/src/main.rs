@@ -55,6 +55,23 @@ fn main() {
               callback,
               error,
             ),
+
+            Sync {
+              path,
+              callback,
+              error,
+            } => tauri::execute_promise(
+              _webview,
+              move || match meta_handler::MetaHandler::update(&path) {
+                  Ok(()) => match meta_handler::MetaHandler::get_metadata(&path) {
+                    Ok(metadata) => Ok(metadata),
+                    Err(err) => Err(err.into()),
+                  }
+                Err(err) => Err(err.into()),
+              },
+              callback,
+              error,
+            ),
           }
           Ok(())
         }
