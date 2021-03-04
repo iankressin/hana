@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
 import { promisified } from "tauri/api/tauri";
-import { Button as TextButton, List } from "antd";
+import { Button as TextButton, List, Checkbox, message } from "antd";
 import {
   FileTwoTone,
   ArrowLeftOutlined,
@@ -9,7 +9,8 @@ import {
   ShareAltOutlined,
   DownloadOutlined,
   LoadingOutlined,
-  CloseOutlined
+  CloseOutlined,
+  SendOutlined
 } from "@ant-design/icons";
 
 import BlockLayout from "../components/BlockLayout";
@@ -26,7 +27,15 @@ const ServerRunning = () => {
   );
 };
 
-const Actions = ({ path, onSyncMetadata, setServerRunning, serverRunning }) => {
+const Actions = ({
+  path,
+  onSyncMetadata,
+  setServerRunning,
+  serverRunning,
+  setSelectingFiles,
+  selectingFiles,
+  selectedFiles
+}) => {
   const syncMetadata = async () => {
     try {
       const response = await promisified({
@@ -34,9 +43,10 @@ const Actions = ({ path, onSyncMetadata, setServerRunning, serverRunning }) => {
         path
       });
 
+      message.success("Metadata synced");
       onSyncMetadata(response);
     } catch (error) {
-      console.log("Error: ", error);
+      message.error(error);
     }
   };
 
@@ -48,6 +58,7 @@ const Actions = ({ path, onSyncMetadata, setServerRunning, serverRunning }) => {
         path
       });
 
+      message.success("Metadata synced");
       setServerRunning(false);
     } catch (error) {
       setServerRunning(false);
@@ -55,10 +66,41 @@ const Actions = ({ path, onSyncMetadata, setServerRunning, serverRunning }) => {
     }
   };
 
-  const stopServer = async () => {};
+  const stopServer = async () => {
+    try {
+      await promisified({
+        cmd: "stopServer"
+      });
+
+      setServerRunning(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const sendFiles = async () => {
+    try {
+      await promisified({
+        cmd: "sendFiles",
+        path,
+        files: selectedFiles
+      });
+
+      message.success("Files sent!");
+      setSelectingFiles(false);
+    } catch (error) {
+      message.error(error);
+      console.log(error);
+    }
+  };
 
   return (
     <div className="ml-auto">
+      <TextButton type="text" onClick={() => syncMetadata()}>
+        <SyncOutlined className="text-lg" />
+        <span className="text-md">Sync</span>
+      </TextButton>
+
       {serverRunning ? (
         <TextButton type="text" onClick={() => stopServer()}>
           <CloseOutlined className="text-lg" />
@@ -71,15 +113,24 @@ const Actions = ({ path, onSyncMetadata, setServerRunning, serverRunning }) => {
         </TextButton>
       )}
 
-      <TextButton type="text" onClick={() => console.log("Share")}>
-        <ShareAltOutlined className="text-lg" />
-        <span className="text-md">Share</span>
-      </TextButton>
+      {selectingFiles ? (
+        <>
+          <TextButton type="text" onClick={() => sendFiles()}>
+            <SendOutlined className="text-lg" />
+            <span className="text-md">Send</span>
+          </TextButton>
 
-      <TextButton type="text" onClick={() => syncMetadata()}>
-        <SyncOutlined className="text-lg" />
-        <span className="text-md">Sync</span>
-      </TextButton>
+          <TextButton type="text" onClick={() => setSelectingFiles(false)}>
+            <CloseOutlined className="text-lg" />
+            <span className="text-md">Cancel</span>
+          </TextButton>
+        </>
+      ) : (
+        <TextButton type="text" onClick={() => setSelectingFiles(true)}>
+          <ShareAltOutlined className="text-lg" />
+          <span className="text-md">Share</span>
+        </TextButton>
+      )}
     </div>
   );
 };
@@ -88,10 +139,20 @@ const Folder = () => {
   const history = useHistory();
   const location = useLocation();
   const [metadata, setMetadata] = useState([]);
+  const [selectingFiles, setSelectingFiles] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [serverRunning, setServerRunning] = useState(false);
   const { folder, path } = location.state.params;
 
   useEffect(() => getMetadata(), []);
+  // useEffect(
+  //   () =>
+  //     console.log(
+  //       "Selected files: ",
+  //       selectedFiles.map(el => Object.keys(el).map(k => el[k]))
+  //     ),
+  //   [selectedFiles]
+  // );
 
   const getMetadata = async () => {
     try {
@@ -101,6 +162,19 @@ const Folder = () => {
       });
       setMetadata(response);
     } catch (error) {}
+  };
+
+  const handleCheckboxChange = event => {
+    const metaIndex = event.target.name;
+    const index = selectedFiles.indexOf(metadata[metaIndex]);
+
+    if (index > 0) {
+      const files = [...selectedFiles];
+      files.splice(index, 1);
+      setSelectedFiles(files);
+    } else {
+      setSelectedFiles([...selectedFiles, metadata[metaIndex]]);
+    }
   };
 
   return (
@@ -115,6 +189,9 @@ const Folder = () => {
           setServerRunning={setServerRunning}
           serverRunning={serverRunning}
           path={path}
+          setSelectingFiles={setSelectingFiles}
+          selectingFiles={selectingFiles}
+          selectedFiles={selectedFiles}
         />
       </div>
       {serverRunning ? (
@@ -129,11 +206,23 @@ const Folder = () => {
           }
           bordered
           dataSource={metadata}
-          renderItem={file => (
+          renderItem={(file, index) => (
             <List.Item>
               <div className="flex align-center justify-center flex-row ">
-                <FileTwoTone className="text-xl mr-4" />
-                {file.name_extension}
+                {selectingFiles ? (
+                  <Checkbox
+                    className="mr-10"
+                    name={index}
+                    onChange={handleCheckboxChange}
+                  >
+                    <label>{file.name_extension}</label>
+                  </Checkbox>
+                ) : (
+                  <>
+                    <FileTwoTone className="text-xl mr-4" />
+                    {file.name_extension}
+                  </>
+                )}
               </div>
             </List.Item>
           )}

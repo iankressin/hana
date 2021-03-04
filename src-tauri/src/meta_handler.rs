@@ -63,15 +63,15 @@ impl MetaHandler {
     Ok(metadata)
   }
 
-    pub fn push_metadata(path: &str, meta: Metadata) -> Result<(), std::io::Error> {
-        let mut metadata = MetaHandler::get_metadata(path).unwrap();
-        metadata.push(meta.clone());
+  pub fn push_metadata(path: &str, meta: Metadata) -> Result<(), std::io::Error> {
+    let mut metadata = MetaHandler::get_metadata(path).unwrap();
+    metadata.push(meta.clone());
 
-        let json = serde_json::to_string(&metadata).unwrap();
-        fs::write(&format!("{}/.hana/metadata.json", path), &json).unwrap();
+    let json = serde_json::to_string(&metadata).unwrap();
+    fs::write(&format!("{}/.hana/metadata.json", path), &json).unwrap();
 
-        Ok(())
-    }
+    Ok(())
+  }
 
   fn set_dirs_record(record: &HashMap<String, String>) -> Result<(), std::io::Error> {
     let home = env::var("HOME").unwrap();

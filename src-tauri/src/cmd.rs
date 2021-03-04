@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use hana_types::Metadata;
 
 #[derive(Deserialize)]
 #[serde(tag = "cmd", rename_all = "camelCase")]
@@ -24,14 +25,26 @@ pub enum Cmd {
   },
 
   Sync {
-      path: String,
-      callback: String,
-      error: String,
+    path: String,
+    callback: String,
+    error: String,
   },
 
   RunServer {
-      path: String,
-      callback: String,
-      error: String,
-  }
+    path: String,
+    callback: String,
+    error: String,
+  },
+
+  StopServer {
+    callback: String,
+    error: String,
+  },
+
+  SendFiles {
+    path: String,
+    files: Vec<Metadata>,
+    callback: String,
+    error: String,
+  },
 }

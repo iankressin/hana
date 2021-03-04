@@ -1,35 +1,36 @@
+use crate::meta_handler::MetaHandler;
 use hana_server::drive_server::DriveServer;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, RwLock};
 use std::thread;
-use crate::meta_handler::MetaHandler;
 
 pub struct Server;
 
 impl Server {
-    pub fn listen(path: String) -> std::io::Result<()> {
-        let metadata = MetaHandler::get_metadata(&path).unwrap();
+  pub fn listen(
+    path: String,
+    rx_stop: Receiver<()>,
+    _: &Sender<()>,
+  ) -> Result<(), std::io::Error> {
 
-        let t = thread::spawn(move || {
-            let lock = Arc::new(RwLock::new(metadata));
+    let metadata = MetaHandler::get_metadata(&path).unwrap();
 
-            let c_lock = Arc::clone(&lock);
+    let lock = Arc::new(RwLock::new(metadata));
+    let c_lock = Arc::clone(&lock);
+    let (tx, rx) = channel();
 
-            let (tx, rx) = channel();
+    let t = thread::spawn(move || {
+      for received in rx {
+        let mut _meta = lock.write().unwrap();
+        println!("File received: {:?}", received);
+        MetaHandler::push_metadata(&path, received).unwrap();
+      }
+    });
 
-            thread::spawn(move || {
-                for received in rx {
-                    let mut _meta = lock.write().unwrap();
-                    println!("File received: {:?}", received);
-                    MetaHandler::push_metadata(&path, received).unwrap();
-                }
-            });
+    DriveServer::listen(&c_lock, tx).unwrap();
 
-            DriveServer::listen(&c_lock, tx).unwrap();
-        });
+    t.join().unwrap();
 
-        t.join().unwrap();
-
-        Ok(())
-    }
+    Ok(())
+  }
 }
