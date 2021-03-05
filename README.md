@@ -2,7 +2,7 @@
 
 ## Development
 
-Configure your environment
+Setup your environment
 - `mkdir ~/.hana && cd ~/.hana`
 - `mkdir records && echo "{}" >> records/records.json`
 
