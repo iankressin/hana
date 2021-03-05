@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use hana_types::Metadata;
+use serde::Deserialize;
 
 #[derive(Deserialize)]
 #[serde(tag = "cmd", rename_all = "camelCase")]

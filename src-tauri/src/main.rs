@@ -8,16 +8,13 @@ mod meta_handler;
 mod server;
 
 use hana_client::drive_client::DriveClient;
-use anyhow::Error;
-use std::sync::mpsc::channel;
-use std::sync::RwLock;
 
 fn main() {
+  static mut flag_server: bool = false;
+
   tauri::AppBuilder::new()
     .invoke_handler(|_webview, arg| {
       use cmd::Cmd::*;
-      let (tx, rx) = channel();
-      // let mut serverRunning = RwLock::new(false);
 
       match serde_json::from_str(arg) {
         Err(e) => Err(e.to_string()),
@@ -84,11 +81,13 @@ fn main() {
               error,
             } => tauri::execute_promise(
               _webview,
-              move || {
-                let _ = &tx.clone();
-
-                match server::Server::listen(path, rx, &tx) {
-                  Ok(()) => Ok(()),
+              || unsafe {
+                flag_server = true;
+                match server::Server::listen(path, &mut flag_server) {
+                    Ok(()) => {
+                        flag_server = false;
+                        Ok(())
+                    },
                   Err(err) => Err(err.into()),
                 }
               },
@@ -98,37 +97,23 @@ fn main() {
 
             StopServer { callback, error } => tauri::execute_promise(
               _webview,
-              move || match &tx.send(()) {
-                Ok(()) => Ok(()),
-                Err(err) => {
-                    println!("Error: {}", err);
-                    Err(Error::new(std::io::Error::new(
-                      std::io::ErrorKind::Interrupted,
-                      "Something went wrong!",
-                    )))
-                },
+              move || {
+                  unsafe {
+                    flag_server = false; 
+                    println!("FLAG_SERVER: {}", flag_server);
+                  }
+                Ok(())
               },
               callback,
               error,
             ),
 
-            StopServer { callback, error } => tauri::execute_promise(
-              _webview,
-              move || match &tx.send(()) {
-                Ok(()) => Ok(()),
-                Err(err) => {
-                    println!("Error: {}", err);
-                    Err(Error::new(std::io::Error::new(
-                      std::io::ErrorKind::Interrupted,
-                      "Something went wrong!",
-                    )))
-                },
-              },
+            SendFiles {
+              path,
+              files,
               callback,
               error,
-            ),
-
-            SendFiles { path, files, callback, error } => tauri::execute_promise(
+            } => tauri::execute_promise(
               _webview,
               move || {
                 DriveClient::send(files, &path);

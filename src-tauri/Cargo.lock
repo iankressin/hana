@@ -536,9 +536,9 @@ dependencies = [
 
 [[package]]
 name = "hana-client"
-version = "0.1.1"
+version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "124f333d6256fc9b53a1572166e304c2a037a24642dd4d899f1c24614fca138c"
+checksum = "e6fcafe166d152cf9fb7502074d0d185f8af6fa30e6c039c3b6767cd97f37fa5"
 dependencies = [
  "bytes",
  "dns-message-parser",
@@ -554,9 +554,9 @@ dependencies = [
 
 [[package]]
 name = "hana-server"
-version = "0.1.1"
+version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d3748489c0933db39beb115652c8a7c7af415ff84780a91e676369190d53d384"
+checksum = "518a524691bfc90202b7a3e6684001304919ce619f9378404a97dc5473c1165f"
 dependencies = [
  "bytes",
  "dns-message-parser",
