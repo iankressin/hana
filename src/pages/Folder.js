@@ -34,7 +34,8 @@ const Actions = ({
   serverRunning,
   setSelectingFiles,
   selectingFiles,
-  selectedFiles
+  selectedFiles,
+  setSelectedFiles
 }) => {
   const syncMetadata = async () => {
     try {
@@ -80,6 +81,10 @@ const Actions = ({
 
   const sendFiles = async () => {
     try {
+      console.log(
+        "FILES =>> ",
+        selectedFiles.map(file => file.name_extension)
+      );
       await promisified({
         cmd: "sendFiles",
         path,
@@ -88,6 +93,7 @@ const Actions = ({
 
       message.success("Files sent!");
       setSelectingFiles(false);
+      setSelectedFiles([]);
     } catch (error) {
       message.error(error);
       console.log(error);
@@ -145,14 +151,6 @@ const Folder = () => {
   const { folder, path } = location.state.params;
 
   useEffect(() => getMetadata(), []);
-  // useEffect(
-  //   () =>
-  //     console.log(
-  //       "Selected files: ",
-  //       selectedFiles.map(el => Object.keys(el).map(k => el[k]))
-  //     ),
-  //   [selectedFiles]
-  // );
 
   const getMetadata = async () => {
     try {
@@ -192,6 +190,7 @@ const Folder = () => {
           setSelectingFiles={setSelectingFiles}
           selectingFiles={selectingFiles}
           selectedFiles={selectedFiles}
+          setSelectedFiles={setSelectedFiles}
         />
       </div>
       {serverRunning ? (

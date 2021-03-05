@@ -1,5 +1,5 @@
 use crate::meta_handler::MetaHandler;
-use hana_server::drive_server::DriveServer;
+use hana_server::HanaServer;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::sync::{Arc, RwLock};
 use std::thread;
@@ -12,10 +12,10 @@ impl Server {
     rx_stop: Receiver<()>,
     _: &Sender<()>,
   ) -> Result<(), std::io::Error> {
-
     let metadata = MetaHandler::get_metadata(&path).unwrap();
-
     let lock = Arc::new(RwLock::new(metadata));
+    let path= Arc::new(path);
+    let path_clone = Arc::clone(&path);
     let c_lock = Arc::clone(&lock);
     let (tx, rx) = channel();
 
@@ -27,7 +27,7 @@ impl Server {
       }
     });
 
-    DriveServer::listen(&c_lock, tx).unwrap();
+    HanaServer::listen(&c_lock, tx, &path_clone).unwrap();
 
     t.join().unwrap();
 
