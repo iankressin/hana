@@ -4,7 +4,7 @@
 
 Setup your environment
 - `mkdir ~/.hana && cd ~/.hana`
-- `mkdir records && echo "{}" >> records/records.json`
+- `mkdir records && echo "{}" >> records/folders.json`
 
 Setup Tauri and its dependencies:
 - [Tauri installation page](https://tauri.studio/en/docs/getting-started/setup-linux)
