@@ -41,18 +41,23 @@ impl MetaHandler {
     Ok(records)
   }
 
-  pub fn update(path: &str) -> Result<(), std::io::Error> {
-    let json = serde_json::to_string(&MetaHandler::get_folder_metada(path).unwrap())?;
-    fs::write(&format!("{}/.hana/metadata.json", path), &json).unwrap();
-
-    Ok(())
-  }
-
   pub fn get_dirs_record_as_vec() -> Result<Vec<(String, String)>, Error> {
     let dirs = MetaHandler::get_dirs_record().unwrap();
     let dirs = dirs.into_iter().map(|(name, path)| (name, path)).collect();
 
     Ok(dirs)
+  }
+
+  pub fn has_dirs() -> Result<bool, Error> {
+    let dirs = MetaHandler::get_dirs_record().unwrap();
+    Ok(!dirs.is_empty())
+  }
+
+  pub fn update(path: &str) -> Result<(), std::io::Error> {
+    let json = serde_json::to_string(&MetaHandler::get_folder_metada(path).unwrap())?;
+    fs::write(&format!("{}/.hana/metadata.json", path), &json).unwrap();
+
+    Ok(())
   }
 
   pub fn get_metadata(path: &str) -> Result<Vec<Metadata>, Error> {

@@ -554,9 +554,9 @@ dependencies = [
 
 [[package]]
 name = "hana-server"
-version = "0.1.5"
+version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "518a524691bfc90202b7a3e6684001304919ce619f9378404a97dc5473c1165f"
+checksum = "07bc1719ff02756a747368f83fc1910a64fb9750fbfb4cb3f13d44b1ed575168"
 dependencies = [
  "bytes",
  "dns-message-parser",

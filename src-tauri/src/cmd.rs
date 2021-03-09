@@ -47,4 +47,9 @@ pub enum Cmd {
     callback: String,
     error: String,
   },
+
+  HasDirs {
+      callback: String,
+      error: String,
+  }
 }

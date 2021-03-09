@@ -122,6 +122,21 @@ fn main() {
               callback,
               error,
             ),
+
+            HasDirs {
+              callback,
+              error,
+            } => tauri::execute_promise(
+              _webview,
+              move || {
+                  match meta_handler::MetaHandler::has_dirs() {
+                    Ok(dirs) => Ok(dirs),
+                    Err(err) => Err(err.into()),
+                  }
+              },
+              callback,
+              error,
+            ),
           }
           Ok(())
         }

@@ -31,7 +31,7 @@ const New = () => {
         <h1 className="text-8xl">🐶</h1>
         <h1 className="text-6xl"> Welcome to Hana!</h1>
         <h3 className="text-2xl mb-8">
-          First, lets pick a location to initialize as a Hana folder
+          First, let's pick a location to initialize as a Hana folder
         </h3>
         <NewFolderButton
           size="w-80"
