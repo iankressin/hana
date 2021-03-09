@@ -6,8 +6,8 @@ RECORDS_DIR="$HANA_DIR/records"
 function install {
   echo "Installing Hana CLI ..."
 
-  LATEST=$(curl -qs https://api.github.com/repos/iankressin/hana-gui/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4);
-  URL="https://github.com/iankressin/hana-gui/releases/download/${LATEST}/hana-gui"
+  LATEST=$(curl -qs https://api.github.com/repos/iankressin/hana/releases/latest | grep tag_name | head -n 1 | cut -d '"' -f 4);
+  URL="https://github.com/iankressin/hana/releases/download/${LATEST}/hana-gui"
 
   echo $URL
 
