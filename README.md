@@ -1,7 +1,7 @@
 # Hana
 
 ## Installation
-curl -L https://raw.githubusercontent.com/iankressin/hana/main/install.sh | bash
+`curl -L https://raw.githubusercontent.com/iankressin/hana/main/install.sh | bash`
 
 
 ## Development
