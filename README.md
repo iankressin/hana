@@ -1,12 +1,3 @@
-# Reason Why
-
-Created: Mar 9, 2021 1:15 PM
-Created By: Ian Guimaraes
-Last Edited By: Ian Guimaraes
-Last Edited Time: Mar 9, 2021 2:22 PM
-Status: In Progress 🙌
-Type: Project Kickoff 🚀
-
 # 🐶 Hana
 
 Hana is a way to share files across computers connected to the same network using mDNS as its foundation.
