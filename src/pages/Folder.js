@@ -61,19 +61,22 @@ const Actions = ({
 
       message.success("Metadata synced");
       setServerRunning(false);
+      syncMetadata();
     } catch (error) {
       setServerRunning(false);
+      message.error(error);
       console.log(error);
     }
   };
 
   const stopServer = async () => {
     try {
-      await promisified({
-        cmd: "stopServer"
-      });
-
       setServerRunning(false);
+      await promisified({
+        cmd: "sendFiles",
+        path,
+        files: []
+      });
     } catch (error) {
       console.log(error);
     }
@@ -81,19 +84,15 @@ const Actions = ({
 
   const sendFiles = async () => {
     try {
-      console.log(
-        "FILES =>> ",
-        selectedFiles.map(file => file.name_extension)
-      );
       await promisified({
         cmd: "sendFiles",
         path,
-        files: selectedFiles
+        files: [...selectedFiles]
       });
 
       message.success("Files sent!");
       setSelectingFiles(false);
-      setSelectedFiles([]);
+      setSelectedFiles(new Set([]));
     } catch (error) {
       message.error(error);
       console.log(error);
@@ -146,7 +145,7 @@ const Folder = () => {
   const location = useLocation();
   const [metadata, setMetadata] = useState([]);
   const [selectingFiles, setSelectingFiles] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState(new Set([]));
   const [serverRunning, setServerRunning] = useState(false);
   const { folder, path } = location.state.params;
 
@@ -164,14 +163,21 @@ const Folder = () => {
 
   const handleCheckboxChange = event => {
     const metaIndex = event.target.name;
-    const index = selectedFiles.indexOf(metadata[metaIndex]);
+    // const index = selectedFiles.indexOf(metadata[metaIndex]);
+    const fileMeta = metadata[metaIndex];
 
-    if (index > 0) {
-      const files = [...selectedFiles];
-      files.splice(index, 1);
-      setSelectedFiles(files);
+    if (selectedFiles.has(fileMeta)) {
+      const set = new Set([...selectedFiles]);
+      set.delete(fileMeta);
+      setSelectedFiles(set);
+      //   const files = [...selectedFiles];
+      //   files.splice(index, 1);
+      //   setSelectedFiles(files);
     } else {
-      setSelectedFiles([...selectedFiles, metadata[metaIndex]]);
+      const set = new Set([...selectedFiles]);
+      set.add(fileMeta);
+      setSelectedFiles(set);
+      //   setSelectedFiles([...selectedFiles, metadata[metaIndex]]);
     }
   };
 
