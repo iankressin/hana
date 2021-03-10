@@ -1,8 +1,8 @@
 [package]
 name = "hana"
 version = "0.1.0"
-description = "A Tauri App"
-authors = [ "you" ]
+description = "Hana"
+authors = [ "Ian" ]
 license = ""
 repository = ""
 default-run = "hana"
@@ -21,6 +21,7 @@ hana-types = "0.1.0"
 regex = "1"
 hex = "0.3.1"
 anyhow = "1.0.38"
+open = "1.5.1"
 
 [target."cfg(windows)".build-dependencies]
 winres = "0.1"

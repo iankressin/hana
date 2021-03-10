@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useLocation } from "react-router-dom";
-import { promisified } from "tauri/api/tauri";
+import { invoke, promisified } from "tauri/api/tauri";
 import { Button as TextButton, List, Checkbox, message } from "antd";
 import {
   FileTwoTone,
@@ -163,22 +163,25 @@ const Folder = () => {
 
   const handleCheckboxChange = event => {
     const metaIndex = event.target.name;
-    // const index = selectedFiles.indexOf(metadata[metaIndex]);
     const fileMeta = metadata[metaIndex];
 
     if (selectedFiles.has(fileMeta)) {
       const set = new Set([...selectedFiles]);
       set.delete(fileMeta);
       setSelectedFiles(set);
-      //   const files = [...selectedFiles];
-      //   files.splice(index, 1);
-      //   setSelectedFiles(files);
     } else {
       const set = new Set([...selectedFiles]);
       set.add(fileMeta);
       setSelectedFiles(set);
-      //   setSelectedFiles([...selectedFiles, metadata[metaIndex]]);
     }
+  };
+
+  const openFile = path => {
+    console.log("Path: ", path);
+    invoke({
+      cmd: "openFile",
+      path
+    });
   };
 
   return (
@@ -203,7 +206,7 @@ const Folder = () => {
         <ServerRunning />
       ) : (
         <List
-          className="w-full h-screen"
+          className="w-auto h-screen"
           header={
             <div>
               <h3 className="text-lg">{folder}</h3>
@@ -223,10 +226,13 @@ const Folder = () => {
                     <label>{file.name_extension}</label>
                   </Checkbox>
                 ) : (
-                  <>
+                  <TextButton
+                    type="text"
+                    onClick={() => openFile(`${path}/${file.name_extension}`)}
+                  >
                     <FileTwoTone className="text-xl mr-4" />
                     {file.name_extension}
-                  </>
+                  </TextButton>
                 )}
               </div>
             </List.Item>

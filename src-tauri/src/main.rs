@@ -7,14 +7,15 @@ mod cmd;
 mod meta_handler;
 mod server;
 
-use hana_client::drive_client::DriveClient;
-
 fn main() {
   static mut flag_server: bool = false;
 
   tauri::AppBuilder::new()
     .invoke_handler(|_webview, arg| {
       use cmd::Cmd::*;
+      use hana_client::drive_client::DriveClient;
+      use open;
+
 
       match serde_json::from_str(arg) {
         Err(e) => Err(e.to_string()),
@@ -137,6 +138,10 @@ fn main() {
               callback,
               error,
             ),
+
+            OpenFile { path } => {
+              open::that(path).unwrap();
+            }
           }
           Ok(())
         }
