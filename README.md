@@ -46,8 +46,6 @@ Running the project
 ## 🤕 Known Problems
 
 Current Hana do not support:
-
-- File name containing white spaces
 - Files > 100mb
 - Retry send files if no server was found on the first try
 - Windows OS
