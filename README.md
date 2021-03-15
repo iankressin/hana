@@ -45,7 +45,6 @@ Running the project
 
 ## 🤕 Known Problems
 
-Current Hana do not support:
-- Files > 100mb
+Currently Hana do not support:
 - Retry send files if no server was found on the first try
 - Windows OS (Windows doesn't support mDNS out of the box as [RFC 6762](https://tools.ietf.org/html/rfc6762) describes. We're still trying to figure out how to make Hana compatible across OSs. If you ever worked with Microsoft's LLMNR before, your help will be much appreciated 🙃)
