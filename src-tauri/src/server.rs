@@ -33,8 +33,6 @@ impl Server {
 
     println!("Closing server ...");
 
-    // t.join().unwrap();
-
     Ok(())
   }
 }

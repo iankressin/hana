@@ -49,11 +49,11 @@ pub enum Cmd {
   },
 
   HasDirs {
-      callback: String,
-      error: String,
+    callback: String,
+    error: String,
   },
 
   OpenFile {
-      path: String,
-  }
+    path: String,
+  },
 }

@@ -7,6 +7,9 @@ mod cmd;
 mod meta_handler;
 mod server;
 
+#[macro_use]
+extern crate lazy_static;
+
 fn main() {
   static mut flag_server: bool = false;
 
@@ -14,8 +17,7 @@ fn main() {
     .invoke_handler(|_webview, arg| {
       use cmd::Cmd::*;
       use hana_client::drive_client::DriveClient;
-      use open;
-
+      use dirs;
 
       match serde_json::from_str(arg) {
         Err(e) => Err(e.to_string()),
@@ -85,10 +87,10 @@ fn main() {
               || unsafe {
                 flag_server = true;
                 match server::Server::listen(path, &mut flag_server) {
-                    Ok(()) => {
-                        flag_server = false;
-                        Ok(())
-                    },
+                  Ok(()) => {
+                    flag_server = false;
+                    Ok(())
+                  }
                   Err(err) => Err(err.into()),
                 }
               },
@@ -99,10 +101,10 @@ fn main() {
             StopServer { callback, error } => tauri::execute_promise(
               _webview,
               move || {
-                  unsafe {
-                    flag_server = false; 
-                    println!("FLAG_SERVER: {}", flag_server);
-                  }
+                unsafe {
+                  flag_server = false;
+                  println!("FLAG_SERVER: {}", flag_server);
+                }
                 Ok(())
               },
               callback,
@@ -124,16 +126,11 @@ fn main() {
               error,
             ),
 
-            HasDirs {
-              callback,
-              error,
-            } => tauri::execute_promise(
+            HasDirs { callback, error } => tauri::execute_promise(
               _webview,
-              move || {
-                  match meta_handler::MetaHandler::has_dirs() {
-                    Ok(dirs) => Ok(dirs),
-                    Err(err) => Err(err.into()),
-                  }
+              move || match meta_handler::MetaHandler::has_dirs() {
+                Ok(dirs) => Ok(dirs),
+                Err(err) => Err(err.into()),
               },
               callback,
               error,

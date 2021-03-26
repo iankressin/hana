@@ -9,6 +9,24 @@ use std::env;
 use std::fs;
 use std::io;
 use std::io::prelude::*;
+use std::path::{Path, PathBuf};
+
+
+static METADATA_PATH: &str = ".hana/metadata.json";
+lazy_static! {
+    static ref FOLDERS_PATH: PathBuf = match dirs::home_dir() {
+      Some(mut home) => {
+        home.push(".hana");
+        home.push("records");
+        home.push("folders.json");
+        let home = home.clone();
+        home
+      }
+      None => {
+        panic!();
+      }
+  };
+}
 
 pub struct MetaHandler;
 
@@ -33,11 +51,9 @@ impl MetaHandler {
   }
 
   pub fn get_dirs_record() -> Result<HashMap<String, String>, Error> {
-    let home = env::var("HOME").unwrap();
-    let bytes = fs::read(&format!("{}/.hana/records/folders.json", home)).unwrap();
+    let bytes = fs::read(&*FOLDERS_PATH.as_path()).unwrap();
     let json = String::from_utf8_lossy(&bytes);
     let records: HashMap<String, String> = serde_json::from_str(&json).unwrap();
-
     Ok(records)
   }
 
@@ -55,13 +71,13 @@ impl MetaHandler {
 
   pub fn update(path: &str) -> Result<(), std::io::Error> {
     let json = serde_json::to_string(&MetaHandler::get_folder_metada(path).unwrap())?;
-    fs::write(&format!("{}/.hana/metadata.json", path), &json).unwrap();
+    fs::write(&format!("{}/{}", path, METADATA_PATH), &json).unwrap();
 
     Ok(())
   }
 
   pub fn get_metadata(path: &str) -> Result<Vec<Metadata>, Error> {
-    let bytes = fs::read(&format!("{}/.hana/metadata.json", path)).unwrap();
+    let bytes = fs::read(&format!("{}/{}", path, METADATA_PATH)).unwrap();
     let json = String::from_utf8_lossy(&bytes);
     let metadata: Vec<Metadata> = serde_json::from_str(&json).unwrap();
 
@@ -73,22 +89,21 @@ impl MetaHandler {
     metadata.push(meta.clone());
 
     let json = serde_json::to_string(&metadata).unwrap();
-    fs::write(&format!("{}/.hana/metadata.json", path), &json).unwrap();
+    fs::write(&format!("{}/{}", path, METADATA_PATH), &json).unwrap();
 
     Ok(())
   }
 
   fn set_dirs_record(record: &HashMap<String, String>) -> Result<(), std::io::Error> {
-    let home = env::var("HOME").unwrap();
     let json = serde_json::to_string(record).unwrap();
-    fs::write(format!("{}/.hana/records/folders.json", home), &json).unwrap();
+    fs::write(&*FOLDERS_PATH.as_path(), &json).unwrap();
 
     Ok(())
   }
 
   fn create_metadata(folder_path: &str) -> Result<(), std::io::Error> {
     fs::create_dir(format!("{}/.hana/", folder_path))?;
-    let mut file = fs::File::create(format!("{}/.hana/metadata.json", folder_path))?;
+    let mut file = fs::File::create(format!("{}/{}", folder_path, METADATA_PATH))?;
     let json = serde_json::to_string(&MetaHandler::get_folder_metada(folder_path).unwrap())?;
 
     file.write_all(&json.as_bytes()).unwrap();
@@ -115,7 +130,7 @@ impl MetaHandler {
 
           if !metadata.is_dir() {
             let mut buf = [0u8; 20];
-            println!("File entry ==>>> {:?}", entry);
+
             MetaHandler::hash_files(&entry.path().to_str().unwrap(), &mut buf);
             meta.push(Metadata {
               name_extension,
