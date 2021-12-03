@@ -43,7 +43,7 @@ Running the project
 
 **Hana** and **Hana CLI** were built to work together, so it's safe to share files using the CLI and the GUI versions of Hana.
 
-## 🤕 Known Problems
+## 🤕 Known Issues
 
 Currently Hana do not support:
 - Retry send files if no server was found on the first try
